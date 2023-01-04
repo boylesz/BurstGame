@@ -11,7 +11,7 @@ void Game::initVariables() {
     this->window = nullptr;
     this->spawnTimerMax = 30.f;
     this->spawnTimer = this->spawnTimerMax;
-    this->maxAliens = 4;
+    this->maxAliens = 1;
 }
 
 void Game::initWindow(int resolutionWidth, int resolutionHeight) {
@@ -41,13 +41,12 @@ void Game::handleEntityCollisions() {
     // Check collisions between the bullets and the player and enemies
     unsigned short index = 0;
     for (Laser& l : lasers) {
-        if (l.getType() == BulletType::Enemy) {
+        if (l.getType() == BulletType::Enemy && !player.getInvulnerable()) {
             if (getVectorMag(l.getPosition() - player.getPosition()) <= player.getShieldRadius()) {
-                if (isFloatBetween(player.getHeading() - angleFromVector(l.getPosition() - player.getPosition()) - 90, -72.f, 72.f)) {
+                if (isFloatBetween(angleFromVector(l.getPosition() - player.getPosition()) - player.getHeading() + 90.f, -72.f, 72.f)) {
                     player.addBullet();
-                } 
-                else {
-                    if (!player.getInvulnerable()) player.damage(1u); // Damage player if possible
+                } else {
+                    player.damage(1u);
                 }
                 // Erase laser
                 lasers.erase(lasers.begin() + index);
